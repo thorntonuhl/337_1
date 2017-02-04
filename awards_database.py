@@ -74,4 +74,4 @@ golden_globes.add_category("Best Director", ["Damien Chazelle", "Tom Ford", "Mel
 
 golden_globes.change_score("Best Director", "Damien Chazelle", 0.21)
 
-golden_globes.find_winners()
+#golden_globes.find_winners()
