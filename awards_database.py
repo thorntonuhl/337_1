@@ -32,11 +32,14 @@ class awards_database(object):
 
     #Change the winning percentage of a given nominee within a given category
 
-    def change_score(self, award, nominee, new_score):
+    def add_score(self, award, nominee, new_score):
 
         b = self.all_awards.get(award)
-
-        b.update({nominee: new_score})
+        if nominee in b:
+            oldScore = b[nominee]
+            b.update({nominee: oldScore + new_score})
+        else:
+            b.update({nominee: new_score})
         
 
 
@@ -68,10 +71,10 @@ class awards_database(object):
 
 golden_globes = awards_database("Best Picture", ["Moonlight", "Hell or High Water", "Lion", "Manchester by the Sea", "Hacksaw Ridge"])
 
-golden_globes.change_score("Best Picture", "Moonlight", 0.5)
+golden_globes.add_score("Best Picture", "Moonlight", 1)
 
 golden_globes.add_category("Best Director", ["Damien Chazelle", "Tom Ford", "Mel Gibson", "Barry Jenkins", "Kenneth Lonergan"])
 
-golden_globes.change_score("Best Director", "Damien Chazelle", 0.21)
+golden_globes.add_score("Best Director", "Damien Chazelle", 0.21)
 
 #golden_globes.find_winners()
