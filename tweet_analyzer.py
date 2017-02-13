@@ -36,7 +36,8 @@ MovieAwardsList = ["Best Motion Picture - Drama",
                    "Best Performance by an Actress In a Supporting Role In a Motion Picture",
                    "Best Screenplay - Motion Picture",
                    "Best Original Score - Motion Picture",
-                   "Best Original Song - Motion Picture","Best Foreign Language Film"]
+                   "Best Original Song - Motion Picture",
+                   "Best Foreign Language Film"]
 
 TVAwardsList = ["Best Television Series - Drama",
                 "Best Television Series - Comedy Or Musical",
@@ -45,8 +46,8 @@ TVAwardsList = ["Best Television Series - Drama",
                 "Best Performance by an Actress In A Television Series - Drama",
                 "Best Performance by an Actress In A Television Series - Comedy Or Musical",
                 "Best Television Mini-Series or Motion Picture made for Television limited series ",
-                "Best Performance by an Actor in a Mini-Series or Motion Picture Made for Television limited series ",
-                "Best Performance by an Actress In A Mini-series or Motion Picture Made for Television limited series ",
+                "Best Performance by an Actor in a Mini-Series or Motion Picture Made for Television limited series miniseries",
+                "Best Performance by an Actress In A Mini-series or Motion Picture Made for Television limited series miniseries",
                 "Best Performance by an Actor in a Supporting Role in a Series, Mini-Series or Motion Picture Made for Television limited series",
                 "Best Performance by an Actress in a Supporting Role in a Series, Mini-Series or Motion Picture Made for Television limited series"]
 
@@ -61,6 +62,7 @@ for i in FullAwardsList:
     j = j.replace(" in ", " ")
     j = j.replace(" a ", " ")
     j = j.replace(" an ", " ")
+    j = j.replace(" - "," ")
     AwardsKeyWordSets.append(j.split())
 
 for award in MovieAwardsList:
@@ -89,7 +91,7 @@ def get_continuous_chunks(text):
 
 ##checks if the word "best" shows up. If it does, then it finds which award out of the awards list above is the tweet talking about
 def awardCheck(tweet):
-    lowerCaseTweet = tweet.lower()
+    lowerCaseTweet = tweet.lower().replace("/"," ")
     bestWordIndex = lowerCaseTweet.find("best")
     if (bestWordIndex != -1) and (bestWordIndex + 4 < len(tweet)):
         remainingTweet =  lowerCaseTweet[bestWordIndex+4:]
@@ -110,6 +112,8 @@ def awardCheck(tweet):
         maxScore = max(similarityScores)
         awardIndex = similarityScores.index(max(similarityScores))
         awardWordsFound = similarWords[awardIndex]
+        if awardIndex == 14:
+           print tweet
         return (awardIndex, awardWordsFound)
     else:
         return (-1, [])
@@ -138,24 +142,31 @@ def findRecipient(tweet):
         remainingIndex = index + len(congratsPhrase)
         if index != -1 and remainingIndex < len(tweet):
             remainingTweet = tweet[remainingIndex:]
-            recipient = getFollowingRecipientHandleOrName(remainingTweet)
-            if recipient[1] != '':
+            followingName = getFollowingRecipientHandleOrName(remainingTweet)
+            if followingName[1] != '':
+                recipient = followingName
                 return recipient
-    entities = get_continuous_chunks(tweet)
-    for entity in entities:
-        personResults = ia.search_person(entity)
-        if len(personResults) >= 1:
-            result = personResults[0]
-            if result.has_key('name'):
-                if result['name'] == entity:
-                    return (0,entity)
-    for entity in entities:
-        movieResults = ia.search_movie(entity)
-        if len(movieResults) >= 1:
-            result = movieResults[0]
-            if result.has_key('title') and result.has_key('year'):
-                if result['title'] == entity and (result['year'] == awardYears[0] or result['year'] == awardYears[1]):
-                    return (0,entity)
+            # else:
+            #     remainingTweetChunks = get_continuous_chunks(remainingTweet)
+            #     if len(remainingTweetChunks) >= 1:
+            #         recipient = remainingTweetChunks[0]
+            #         if recipient[1] != '':
+            #             return (0,recipient)
+    #entities = get_continuous_chunks(tweet)
+    # for entity in entities:
+    #     personResults = ia.search_person(entity)
+    #     if len(personResults) >= 1:
+    #         result = personResults[0]
+    #         if result.has_key('name'):
+    #             if result['name'] == entity:
+    #                 return (0,entity)
+    # for entity in entities:
+    #     movieResults = ia.search_movie(entity)
+    #     if len(movieResults) >= 1:
+    #         result = movieResults[0]
+    #         if result.has_key('title') and result.has_key('year'):
+    #             if result['title'] == entity and (result['year'] == awardYears[0] or result['year'] == awardYears[1]):
+    #                 return (0,entity)
     return None
 
 
@@ -181,3 +192,4 @@ def analyze_tweets():
                 # print "no info in tweet"
                 # print "------------------------------------------------------------------------------------"
     AwardsDatabase.find_winners()
+    print AwardsDatabase.all_awards
