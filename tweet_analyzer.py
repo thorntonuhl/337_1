@@ -284,20 +284,22 @@ def analyze_tweets():
                 # else:
                 # print "no info in tweet"
                 # print "------------------------------------------------------------------------------------"
+    print "WINNERS:"
     AwardsDatabase.find_winners()
-    #print AwardsDatabase.all_awards
+    print ""
+    print "NOMINEES:"
+    AwardsDatabase.find_nominees()
 
 def analyze_presenters():
     #second "main" fn
     for tweet in tweetsClean:
         if presenterCheck(tweet) == True:
             findPresenters(tweet)
-    print PresenterDatabase.find_presenters()
+    print "PRESENTERS"
+    PresenterDatabase.find_presenters()
 
-#findPresenters("RT @goldenglobes: Here to present Best Performance By An Actress in a Motion Picture - Musical or Comedy is Matt Damon! #GoldenGlobes https\u2026")
-
-
-#print "WINNERS:"
-#analyze_tweets()
-print "PRESENTERS:"
+#RUN EACH ANALYSIS:
+analyze_tweets()
 analyze_presenters()
+
+

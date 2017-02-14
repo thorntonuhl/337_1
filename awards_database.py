@@ -91,3 +91,25 @@ class awards_database(object):
             if (current_winner != "") and (each_award != ""):
 
                 print ("Presenter(s) of \"" + each_award + "\": " + current_winner)
+                
+    def find_nominees(self):
+
+        for each_award in self.all_awards:
+
+            if each_award != "":
+
+                nominee_list = []
+
+                find_dict = self.all_awards.get(each_award)
+
+                print "The nominees for " + each_award + " are:"
+
+                for each_nominee in find_dict:
+
+                    nominee_list = [nominee_list] + [each_nominee]
+
+                    print each_nominee
+
+                print " "
+
+                    
