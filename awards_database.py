@@ -86,6 +86,5 @@ class awards_database(object):
 
                     current_winner = each_nominee
 
-            print ("Presenter(s) of " + each_award + ": " + current_winner)
-
-
+            if (current_winner != "") and (each_award != ""):
+                print ("Presenter(s) of \"" + each_award + "\": " + current_winner)

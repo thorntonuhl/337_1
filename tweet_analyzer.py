@@ -38,7 +38,8 @@ testTweetSet = ["RT @goldenglobes: Congratulations to Zootopia (@DisneyZootopia)
 
 AwardsDatabase = awards_database("",[])
 MovieAwardsList = ["Best Motion Picture - Drama",
-                   "Best Animated Feature Film",
+                   #"Best Animated Feature Film",
+                   "Best Motion Picture - Animated",
                    "Best Motion Picture - Musical or Comedy",
                    "Best Director - Motion Picture",
                    "Best Performance by an Actor in a Motion Picture - Drama",
@@ -175,35 +176,66 @@ def presenterCheck(tweet):
     return False
 
 def findPresenters(tweet):
+    
+    #Variable Definitions
     first_presenter = ""
     second_presenter = ""
     award = ""
-    #chunks = get_continuous_chunks(tweet)
-    #print chunks
     last_index = len(tweet)
     index = tweet.lower().find("and")
+    if (index == -1):
+        index = tweet.lower().find("&")
+    if (index == -1):
+        chunks = get_continuous_chunks(tweet)
+        if len(chunks) == 0:
+            return
+        nominee = chunks[0]
+        for award_name in MovieAwardsList:
+            if award_name in tweet:
+                award = award_name
+        for award_name in TVAwardsList:
+            if award_name in tweet:
+                award = award_name
+        PresenterDatabase.add_score(award, nominee, 1)
+        return
+        
+        
     beforeString = tweet.lower()[0:(index)]
     afterString = tweet.lower()[(index+4):last_index]
 
     #Find First Presenter
-    counter = index-1
+    first_space = 0
+    counter = index-2
     while (counter >= 0):
         if beforeString[counter] == "@":
             first_presenter = "@" + first_presenter
-            counter = -1 
+            counter = -1
+        elif beforeString[counter] == " ":
+            if first_space == 0:
+                first_space = 1
+                first_presenter = " " + first_presenter
+                counter = counter - 1
+            else:
+                counter = -1            
         else:
             first_presenter = beforeString[counter] + first_presenter
             counter = counter - 1
 
     #Find Second Presenter
     counter = 0
+    last_word = 0
     while (counter <= last_index):
         if afterString[counter] == "@":
             second_presenter = "@" + second_presenter
             counter = counter + 1
+            last_word = 1
         elif afterString[counter] == " ":
-            second_presenter = second_presenter
-            counter = last_index + 1
+            if last_word == 0:
+                last_word = 1
+                second_presenter = " " + second_presenter
+                counter = counter + 1
+            else:
+                counter = last_index+1
         else:
             second_presenter = second_presenter + afterString[counter]
             counter = counter + 1
@@ -216,10 +248,10 @@ def findPresenters(tweet):
         if award_name in tweet:
             award = award_name
 
-    nominee = first_presenter + "and " + second_presenter
+    nominee = first_presenter + " and " + second_presenter
     PresenterDatabase.add_score(award, nominee, 1)
-    #print "The presenters of " + award + " were " + first_presenter + "and " +  second_presenter
-    return None
+    #print "The presenters of \"" + award + "\" were " + first_presenter + " and " +  second_presenter
+    return
         
 def analyze_tweets():
     ##main function
@@ -252,18 +284,12 @@ def analyze_presenters():
             findPresenters(tweet)
     print PresenterDatabase.find_presenters()
 
-
-
-
 analyze_presenters()
 
+#findPresenters("RT @goldenglobes: @LeoDiCaprio takes the #GoldenGlobes stage to present the penultimate award of the night: Best Actress in a Motion Picture")
+
             
-
-
-    
-
-
-
-
+#findPresenters("RT @goldenglobes: Kristen Wiig and @SteveCarell team up to present Best Motion Picture - Animated. #GoldenGlobes https://t.co/456617TZCG")
+#findPresenters("RT @goldenglobes: Emma Stone and @VancityReynolds present the first award of the night for Best Supporting Actor - Motion Picture. #GoldenG\u2026")
 #analyze_presenters()
 #analyze_tweets()
