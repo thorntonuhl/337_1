@@ -162,6 +162,18 @@ def findRecipient(tweet):
                 return recipient
     return None
 
+PresenterDatabase = awards_database("",[])
+for award in FullAwardsList:
+    PresenterDatabase.add_category(award, [])
+
+def presenterCheck(tweet):
+    lowerCaseTweet = tweet.lower().replace("/"," ")
+    presentsPhrases = ["present", "presenting", "present"]
+    for word in presentsPhrases:
+        if word in tweet:
+            return True
+    return False
+
 def findPresenters(tweet):
     first_presenter = ""
     second_presenter = ""
@@ -204,11 +216,11 @@ def findPresenters(tweet):
         if award_name in tweet:
             award = award_name
 
-    print "The presenters of " + award + " are " + first_presenter + "were " +  second_presenter
+    nominee = first_presenter + "and " + second_presenter
+    PresenterDatabase.add_score(award, nominee, 1)
+    #print "The presenters of " + award + " were " + first_presenter + "and " +  second_presenter
     return None
         
-
-
 def analyze_tweets():
     ##main function
     i = 0
@@ -233,4 +245,25 @@ def analyze_tweets():
     AwardsDatabase.find_winners()
     print AwardsDatabase.all_awards
 
-findPresenters("@NaomiCampbell and @MattBomer present Best Performance by an Actor in a Supporting Role in a Television Series or TV")
+def analyze_presenters():
+    #second "main" fn
+    for tweet in tweetsClean:
+        if presenterCheck(tweet) == True:
+            findPresenters(tweet)
+    print PresenterDatabase.find_presenters()
+
+
+
+
+analyze_presenters()
+
+            
+
+
+    
+
+
+
+
+#analyze_presenters()
+#analyze_tweets()

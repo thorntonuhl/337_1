@@ -15,7 +15,6 @@ class awards_database(object):
         outer_dict.update({award: inner_dict})
 
         self.all_awards = outer_dict
-
         
     #Add a new award category
 
@@ -32,11 +31,14 @@ class awards_database(object):
 
     #Change the winning percentage of a given nominee within a given category
 
-    def change_score(self, award, nominee, new_score):
+    def add_score(self, award, nominee, new_score):
 
         b = self.all_awards.get(award)
-
-        b.update({nominee: new_score})
+        if nominee in b:
+            oldScore = b[nominee]
+            b.update({nominee: oldScore + new_score})
+        else:
+            b.update({nominee: new_score})
         
 
 
@@ -63,15 +65,27 @@ class awards_database(object):
                     current_winner = each_nominee
 
             print ("The winner of " + each_award + " was " + current_winner)
- 
-#TEST SECTION
 
-golden_globes = awards_database("Best Picture", ["Moonlight", "Hell or High Water", "Lion", "Manchester by the Sea", "Hacksaw Ridge"])
+    def find_presenters(self):
 
-golden_globes.change_score("Best Picture", "Moonlight", 0.5)
+        for each_award in self.all_awards:
 
-golden_globes.add_category("Best Director", ["Damien Chazelle", "Tom Ford", "Mel Gibson", "Barry Jenkins", "Kenneth Lonergan"])
+            current_best = 0
 
-golden_globes.change_score("Best Director", "Damien Chazelle", 0.21)
+            find_dict = self.all_awards.get(each_award)
 
-golden_globes.find_winners()
+            current_winner = ""
+
+            for each_nominee in find_dict:
+
+                nominee_score = find_dict.get(each_nominee)
+
+                if (nominee_score > current_best):
+
+                    current_best = nominee_score
+
+                    current_winner = each_nominee
+
+            print ("Presenter(s) of " + each_award + ": " + current_winner)
+
+
