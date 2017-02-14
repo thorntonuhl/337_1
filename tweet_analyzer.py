@@ -130,6 +130,7 @@ def awardCheck(tweet):
         #if awardIndex == 14:
          #  print tweet
         return (awardIndex, awardWordsFound)
+
     else:
         return (-1, [])
 
@@ -169,37 +170,49 @@ for award in FullAwardsList:
 
 def presenterCheck(tweet):
     lowerCaseTweet = tweet.lower().replace("/"," ")
-    presentsPhrases = ["present", "presenting", "present"]
+    presentsPhrases = ["present", "presenting", "presents", "presenter", "presenters"]
     for word in presentsPhrases:
         if word in tweet:
             return True
     return False
 
 def findPresenters(tweet):
-    
     #Variable Definitions
     first_presenter = ""
     second_presenter = ""
     award = ""
+    bad_chunk = 0
+    not_names = ["best", "motion", "actor", "supporting", "picture"]
     last_index = len(tweet)
+    #Determine where "and" or "&" is, assuming two presenters
     index = tweet.lower().find("and")
     if (index == -1):
         index = tweet.lower().find("&")
+    #Index = -1 means there was a single presenter
     if (index == -1):
-        chunks = get_continuous_chunks(tweet)
-        if len(chunks) == 0:
+        chunks = get_continuous_chunks(tweet)      
+        get_presenter = 0
+        nominee = "no_val"
+        #Goes through each potential chunk, makes sure its a real person
+        while (get_presenter < len(chunks)):
+            for word in not_names:
+                if word in chunks[get_presenter].lower():
+                    bad_chunk = 1
+            if bad_chunk == 1:
+                get_presenter = get_presenter + 1
+            else:
+                nominee = chunks[get_presenter]
+                get_presenter = len(chunks)+1           
+        if nominee == "no_val":
             return
-        nominee = chunks[0]
-        for award_name in MovieAwardsList:
-            if award_name in tweet:
-                award = award_name
-        for award_name in TVAwardsList:
-            if award_name in tweet:
-                award = award_name
+        award_index, award_words = awardCheck(tweet)
+        if award_index != -1:
+            award = FullAwardsList[award_index]
+
         PresenterDatabase.add_score(award, nominee, 1)
         return
         
-        
+    #With two presenters, split tweet before/after "and"/&    
     beforeString = tweet.lower()[0:(index)]
     afterString = tweet.lower()[(index+4):last_index]
 
@@ -241,16 +254,13 @@ def findPresenters(tweet):
             counter = counter + 1
 
     #Get Award
-    for award_name in MovieAwardsList:
-        if award_name in tweet:
-            award = award_name
-    for award_name in TVAwardsList:
-        if award_name in tweet:
-            award = award_name
+    other_award_index, other_award_words = awardCheck(tweet)
+    if other_award_index != -1:
+        award = FullAwardsList[other_award_index]
 
     nominee = first_presenter + " and " + second_presenter
     PresenterDatabase.add_score(award, nominee, 1)
-    #print "The presenters of \"" + award + "\" were " + first_presenter + " and " +  second_presenter
+    #print "Presentor(s) of \"" + award + "\": " + nominee
     return
         
 def analyze_tweets():
@@ -275,7 +285,7 @@ def analyze_tweets():
                 # print "no info in tweet"
                 # print "------------------------------------------------------------------------------------"
     AwardsDatabase.find_winners()
-    print AwardsDatabase.all_awards
+    #print AwardsDatabase.all_awards
 
 def analyze_presenters():
     #second "main" fn
@@ -284,12 +294,10 @@ def analyze_presenters():
             findPresenters(tweet)
     print PresenterDatabase.find_presenters()
 
-analyze_presenters()
+#findPresenters("RT @goldenglobes: Here to present Best Performance By An Actress in a Motion Picture - Musical or Comedy is Matt Damon! #GoldenGlobes https\u2026")
 
-#findPresenters("RT @goldenglobes: @LeoDiCaprio takes the #GoldenGlobes stage to present the penultimate award of the night: Best Actress in a Motion Picture")
 
-            
-#findPresenters("RT @goldenglobes: Kristen Wiig and @SteveCarell team up to present Best Motion Picture - Animated. #GoldenGlobes https://t.co/456617TZCG")
-#findPresenters("RT @goldenglobes: Emma Stone and @VancityReynolds present the first award of the night for Best Supporting Actor - Motion Picture. #GoldenG\u2026")
-#analyze_presenters()
+#print "WINNERS:"
 #analyze_tweets()
+print "PRESENTERS:"
+analyze_presenters()

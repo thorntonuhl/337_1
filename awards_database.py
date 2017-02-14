@@ -63,8 +63,10 @@ class awards_database(object):
                     current_best = nominee_score
 
                     current_winner = each_nominee
+                    
+            if (each_award != ""):
 
-            print ("The winner of " + each_award + " was " + current_winner)
+                print ("The winner of " + each_award + " was " + current_winner)
 
     def find_presenters(self):
 
@@ -87,4 +89,5 @@ class awards_database(object):
                     current_winner = each_nominee
 
             if (current_winner != "") and (each_award != ""):
+
                 print ("Presenter(s) of \"" + each_award + "\": " + current_winner)
